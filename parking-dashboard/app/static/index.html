@@ -122,7 +122,8 @@
         Chart.defaults.font.size = 20;
         Chart.defaults.font.weight = '600';
 
-        const API_BASE = 'http://127.0.0.1:8000';
+        //const API_BASE = 'http://127.0.0.1:8000';
+        const API_BASE = location.hostname === 'localhost' ? 'http://127.0.0.1:8000' : '';
 
         let occupancyChart, typeChart, revenueChart; // globalne reference
 
