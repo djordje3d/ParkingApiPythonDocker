@@ -1,19 +1,19 @@
-# Dockerfile
 FROM python:3.11-slim
 
-# Set working directory
-WORKDIR parking-dashboard/app
+# Postavi radni direktorijum u /app
+WORKDIR /app
 
-# Install dependencies
+# Kopiraj requirements.txt iz parking-dashboard
 COPY parking-dashboard/requirements.txt .
 
+# Instaliraj zavisnosti
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire application code
-COPY . .
+# Kopiraj ceo app folder u /app
+COPY parking-dashboard/app/ ./
 
-# Make port 8000 available to the world outside this container
+# Otvori port
 EXPOSE 8000
 
-# Start the FastAPI server with Uvicorn
+# Pokreni aplikaciju
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
