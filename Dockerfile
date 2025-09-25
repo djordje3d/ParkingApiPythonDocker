@@ -10,10 +10,11 @@ COPY parking-dashboard/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Kopiraj ceo app folder u /app
-COPY parking-dashboard/app/ ./
+# COPY parking-dashboard/app/ ./
+COPY parking-dashboard/app ./app
 
 # Otvori port
 EXPOSE 8000
 
 # Pokreni aplikaciju
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
