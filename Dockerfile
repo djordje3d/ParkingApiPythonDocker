@@ -5,7 +5,8 @@ FROM python:3.11-slim
 WORKDIR parking-dashboard/app
 
 # Install dependencies
-COPY requirements.txt .
+COPY parking-dashboard/requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire application code
