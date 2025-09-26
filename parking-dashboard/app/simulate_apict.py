@@ -4,9 +4,9 @@ import random
 # from enum import Enum
 from app.VehicleType import VehicleType
 
-BASE_URL = "http://127.0.0.1:8000"
+# BASE_URL = "http://127.0.0.1:8000"
 # BASE_URL = "http://localhost:8000" # for request from the same container
-# BASE_URL = "http://render.internal:8000"  # for request from another container
+BASE_URL = "http://render.internal:8000"  # for request from another container
 
 # Prefixes and suffixes for registration numbers
 prefixes = ["BG", "NS", "NI", "CA", "KG", "SU", "ZR", "VA"]
@@ -66,16 +66,35 @@ def simulate_entry():
     return barcodes
 
 
-def simulate_exit(barcodes):
-    if not barcodes:
+# barcodes iz simulate_entry se prosledjuju kao argument
+# Ne koristi se vise
+# def simulate_exit(barcodes):
+#     if not barcodes:
+#         print("\n⚠️ No vehicles to exit.")
+#         return
+
+#     number_to_exit = random.randint(
+#         1, min(6, len(barcodes))
+#     )  # Exit up to 5 or available
+#     print(f"\n🚗 Exiting {number_to_exit} vehicles...")
+#     for barcode in barcodes[:number_to_exit]:
+#         res = requests.post(f"{BASE_URL}/vehicles/exit/{barcode}").json()
+#         print("🚗 Exit response:", res)
+
+
+# Pozivanje aktivnih barkodova direktno iz API-ja
+
+
+def simulate_exit():
+    vehicles = requests.get(f"{BASE_URL}/vehicles/active", timeout=5).json()
+    if not vehicles:
         print("\n⚠️ No vehicles to exit.")
         return
 
-    number_to_exit = random.randint(
-        1, min(6, len(barcodes))
-    )  # Exit up to 5 or available
+    barcodes = [v["barcode"] for v in vehicles]
+    number_to_exit = random.randint(1, min(6, len(barcodes)))
     print(f"\n🚗 Exiting {number_to_exit} vehicles...")
-    for barcode in barcodes[:number_to_exit]:
+    for barcode in random.sample(barcodes, number_to_exit):
         res = requests.post(f"{BASE_URL}/vehicles/exit/{barcode}").json()
         print("🚗 Exit response:", res)
 
@@ -95,12 +114,12 @@ def run_simulation():
     print("➡️ Calling show_occupancy()")
 
     show_occupancy()
-    barcodes = simulate_entry()
+    simulate_entry()
 
     show_vehicles()
     show_occupancy()
 
-    simulate_exit(barcodes)
+    simulate_exit()
 
     show_occupancy()
     show_vehicles()
