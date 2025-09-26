@@ -6,6 +6,11 @@ import math
 import random
 
 
+class ParkingFullError(Exception):
+    def __init__(self, message="Parking is full. No available spaces."):
+        super().__init__(message)
+
+
 class ParkingService:
     def __init__(self, capacity=50, hourly_rate=120.0):
         self.capacity = capacity
@@ -27,7 +32,7 @@ class ParkingService:
 
     def enter_vehicle(self, vehicle_registration: str, vehicle_type: VehicleType):
         if len(self.tickets) >= self.capacity:
-            raise Exception("Parking is full")
+            raise ParkingFullError()
 
         ticket = Ticket(vehicle_registration, vehicle_type)
 

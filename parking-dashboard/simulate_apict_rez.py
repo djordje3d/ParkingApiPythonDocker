@@ -5,8 +5,15 @@ import random
 from app.VehicleType import VehicleType
 
 BASE_URL = "http://127.0.0.1:8000"
-# BASE_URL = "http://localhost:8000" # for request from the same container
-# BASE_URL = "http://render.internal:8000"  # for request from another container
+
+# Enum mirror for backend VehicleType
+
+
+# class VehicleType(str, Enum):
+#     CAR = "CAR"
+#     BUS = "BUS"
+#     TRUCK = "TRUCK"
+
 
 # Prefixes and suffixes for registration numbers
 prefixes = ["BG", "NS", "NI", "CA", "KG", "SU", "ZR", "VA"]
@@ -80,7 +87,7 @@ def simulate_exit(barcodes):
         print("🚗 Exit response:", res)
 
 
-def run_simulation():
+if __name__ == "__main__":
     print("\n" + "*" * 60)
     print("🚗 Parking Service API Simulation Started")
 
@@ -90,7 +97,7 @@ def run_simulation():
         print("✅ Server response:", res.json())
     except Exception as e:
         print("❌ Server unreachable:", e)
-        return
+        exit()
 
     print("➡️ Calling show_occupancy()")
 

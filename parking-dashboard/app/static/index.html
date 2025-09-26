@@ -18,7 +18,7 @@
         }
         .grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 30px;
             margin-bottom: 40px;
         }
@@ -82,28 +82,45 @@
 .chart-box canvas {
     width: 100%;
     max-height: 500px;
+}   
+
+button:hover {
+    background-color: #45a049;
 }
 
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
     </style>
 </head>
 <body>
     <h1>Garage Dashboard</h1>
-
+    <div style="text-align:center; margin:30px 0;">
+        <button onclick="triggerSimulation()" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px;">
+            🔄 Simulate Entry/Exit
+        </button>
+        <div id="statusMessage" style="text-align:center; font-weight:600; color:#d32f2f; margin-bottom:20px;"></div>
+    </div>
     <div class="grid">
     <div>
-        <h2>Occupancy</h2>
+        <h2>📊 Occupancy</h2>        
         <canvas id="occupancyChart"></canvas>
     </div>
     <div>
-        <h2>Revenue</h2>
+    <h2>🚗 Types Vehicles</h2>
+    <canvas id="typeChart"></canvas>
+    </div>
+    <div>
+        <h2>💰 Revenue</h2>
         <canvas id="revenueChart"></canvas>
     </div>
     </div>
 
-    <h2>Types Vehicles</h2>
-    <canvas id="typeChart"></canvas>
 
-    <h2>Active Vehicles</h2>
+
+    <h2>📋 Active Vehicles</h2>
     <table id="vehiclesTable">
         <thead>
             <tr>
@@ -137,7 +154,7 @@
             const freeData = await fetchJSON('/spaces/free');
             const occData = await fetchJSON('/occupancy');
             const occupied = occData.capacity - freeData.free_spaces;
-            renderOccupancyChart(occupied, freeData.free_spaces);
+            renderOccupancyChart(occupied, freeData.free_spaces, occData.capacity);
 
             // 2) Vehicles
             const vehicles = await fetchJSON('/vehicles/active');
@@ -149,7 +166,11 @@
             renderRevenueChart(revData.total_revenue || 0); // grafikon prihoda
         }
 
-        function renderOccupancyChart(occupied, free) {
+        function renderOccupancyChart(occupied, free, capacity) {
+            if (occupied >= capacity) {
+                document.getElementById("statusMessage").textContent = "⚠️ Parking je pun. Nema slobodnih mesta.";
+            }
+
             if (occupancyChart) occupancyChart.destroy();  // uništavamo prethodni grafikon ako postoji
             occupancyChart = new Chart(
                 document.getElementById('occupancyChart'),
@@ -237,11 +258,22 @@
         }
 
         loadDashboard();
-        
-        // Auto-refresh svakih 10 sekundi
-        setInterval(() => {
-            location.reload();
-                }, 10000);
+
+        function triggerSimulation() {
+            fetch('/simulate', { method: 'POST' })
+             .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                            document.getElementById("statusMessage").textContent = "❌ " + data.error;
+                    } else {
+                            document.getElementById("statusMessage").textContent = "✅ Simulacija uspešno pokrenuta!";
+                            loadDashboard(); // ne moraš reload, možeš samo osvežiti podatke
+                                     }
+                                 })
+                                 .catch(err => {
+            document.getElementById("statusMessage").textContent = "❌ Greška u komunikaciji sa serverom.";
+        });
+}
 
     </script>
 </body>

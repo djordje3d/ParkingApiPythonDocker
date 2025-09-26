@@ -3,6 +3,7 @@ from fastapi_cache.decorator import cache
 from datetime import datetime
 from app.VehicleType import VehicleType
 from pydantic import BaseModel
+from simulate_apict import run_simulation
 import random
 
 from app.services import service
@@ -13,6 +14,15 @@ router = APIRouter()
 class VehicleEntry(BaseModel):
     registration: str
     vehicle_type: VehicleType
+
+
+@router.post("/simulate")
+def trigger_simulation():
+    try:
+        run_simulation()
+        return {"status": "Simulation triggered"}
+    except Exception as e:
+        return {"status": "Simulation failed", "error": str(e)}
 
 
 @router.post("/vehicles/enter")
