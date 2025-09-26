@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi_cache.decorator import cache
 from datetime import datetime
 from app.VehicleType import VehicleType
 from pydantic import BaseModel
 from app.simulate_apict import run_simulation
+from app.ParkingService import ParkingFullError
 import random
 
 from app.services import service
@@ -27,19 +28,22 @@ def trigger_simulation():
 
 @router.post("/vehicles/enter")
 def enter_vehicle(data: VehicleEntry):
-    ticket = service.enter_vehicle(data.registration, data.vehicle_type)
-    return {
-        "message": "Vehicle entered",
-        "barcode": ticket.bar_code,
-        "entry_time": ticket.entry_time.strftime("%Y-%m-%d %H:%M"),
-    }
+    try:
+        ticket = service.enter_vehicle(data.registration, data.vehicle_type)
+        return {
+            "message": "Vehicle entered",
+            "barcode": ticket.bar_code,
+            "entry_time": ticket.entry_time.strftime("%Y-%m-%d %H:%M"),
+        }
+    except ParkingFullError as e:
+        raise HTTPException(status_code=403, detail=str(e))
 
 
 @router.post("/vehicles/exit/{barcode}")
 def exit_vehicle(barcode: str):
     ticket = service.find_ticket_by_barcode(barcode)
     if not ticket:
-        return {"error": "Ticket not found"}
+        raise HTTPException(status_code=404, detail="Ticket not found")
     fee = service.exit_vehicle(ticket)
     return {
         "message": "Vehicle exited",
@@ -83,7 +87,7 @@ def get_revenue_today():
         for t in service.tickets
         if t.entry_time.date() == today
     )
-    return {"total_revenue": total}
+    return {"total_revenue": total, "currency": "RSD"}
 
 
 @router.get("/health")
