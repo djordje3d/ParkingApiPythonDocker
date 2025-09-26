@@ -1,42 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Parking Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f5f5f5;
+    }
+    h2 {
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto 40px auto;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    #revenueDisplay {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 40px;
+    }
+    button {
+      display: block;
+      margin: 0 auto 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #statusMessage {
+      text-align: center;
+      font-weight: 600;
+      color: #d32f2f;
+      margin-bottom: 30px;
+    }
+  </style>
 </head>
 <body>
-  <h2>Occupancy</h2>
+  <h1 style="text-align:center; font-size:32px; font-weight:700;">Garage Dashboard</h1>
+
+  <button onclick="runSimulation()">🔄 Simulate Entry/Exit</button>
+  <div id="statusMessage"></div>
+
+  <h2>📊 Occupancy</h2>
   <canvas id="occupancyChart" width="400" height="200"></canvas>
 
-  <h2>Revenue Today</h2>
-  <div id="revenueDisplay"></div>
+  <h2>💰 Revenue Today</h2>
+  <div id="revenueDisplay">Loading...</div>
 
   <script>
-    async function loadOccupancy() {
-      const res = await fetch("/occupancy");
-      const data = await res.json();
-      const ctx = document.getElementById("occupancyChart").getContext("2d");
+    async function runSimulation() {
+      document.getElementById("statusMessage").textContent = "⏳ Pokrećem simulaciju...";
+      try {
+        const res = await fetch("/simulate", { method: "POST" });
+        const data = await res.json();
 
-      new Chart(ctx, {
-        type: "doughnut",
-        data: {
-          labels: ["Occupied", "Free"],
-          datasets: [{
-            data: [data.percent, 100 - data.percent],
-            backgroundColor: ["#ff6384", "#36a2eb"]
-          }]
+        if (data.error) {
+          document.getElementById("statusMessage").textContent = "❌ " + data.error;
+        } else {
+          document.getElementById("statusMessage").textContent = "✅ Simulacija uspešno završena!";
+          await refreshDashboard();
         }
-      });
+      } catch (err) {
+        document.getElementById("statusMessage").textContent = "❌ Greška u komunikaciji sa serverom.";
+      }
     }
 
-    async function loadRevenue() {
-      const res = await fetch("/revenue/today");
-      const data = await res.json();
-      document.getElementById("revenueDisplay").innerText = `Total: ${data.total_revenue} RSD`;
+    async function refreshDashboard() {
+      try {
+        const occRes = await fetch("/occupancy");
+        const occData = await occRes.json();
+        const freeRes = await fetch("/spaces/free");
+        const freeData = await freeRes.json();
+
+        const occupied = occData.capacity - freeData.free_spaces;
+        const ctx = document.getElementById("occupancyChart").getContext("2d");
+        new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["Occupied", "Free"],
+            datasets: [{
+              data: [occupied, freeData.free_spaces],
+              backgroundColor: ["#f44336", "#4caf50"]
+            }]
+          },
+          options: { responsive: true }
+        });
+
+        const revRes = await fetch("/revenue/today");
+        const revData = await revRes.json();
+        document.getElementById("revenueDisplay").textContent = `Total: ${revData.total_revenue} RSD`;
+      } catch (err) {
+        document.getElementById("revenueDisplay").textContent = "❌ Greška u učitavanju podataka.";
+      }
     }
 
-    loadOccupancy();
-    loadRevenue();
+    refreshDashboard();
   </script>
 </body>
 </html>

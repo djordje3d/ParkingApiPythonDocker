@@ -12,27 +12,38 @@
   <div id="app" class="max-w-7xl mx-auto space-y-10">
     <h1 class="text-4xl font-bold text-center">Garage Dashboard</h1>
 
+    <!-- Simulacija dugme + status -->
+    <div class="text-center space-y-4">
+      <button @click="triggerSimulation"
+        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded shadow">
+        🔄 Simulate Entry/Exit
+      </button>
+      <div v-if="statusMessage" :class="statusClass" class="font-semibold text-lg">
+        {{ statusMessage }}
+      </div>
+    </div>
+
     <!-- Grid za Occupancy & Revenue -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col items-center">
-        <h2 class="text-xl font-semibold mb-4">Occupancy</h2>
+        <h2 class="text-xl font-semibold mb-4">📊 Occupancy</h2>
         <canvas ref="occCanvas" class="w-full max-h-[400px]"></canvas>
       </div>
       <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col items-center">
-        <h2 class="text-xl font-semibold mb-4">Revenue</h2>
+        <h2 class="text-xl font-semibold mb-4">💰 Revenue</h2>
         <canvas ref="revCanvas" class="w-full max-h-[400px]"></canvas>
       </div>
     </div>
 
     <!-- Vehicle types -->
     <div class="bg-white rounded-2xl shadow-md p-6">
-      <h2 class="text-xl font-semibold mb-4 text-center">Types Vehicles</h2>
+      <h2 class="text-xl font-semibold mb-4 text-center">🚗 Types Vehicles</h2>
       <canvas ref="typeCanvas" class="w-full max-h-[400px]"></canvas>
     </div>
 
     <!-- Table -->
     <div class="bg-white rounded-2xl shadow-md p-6">
-      <h2 class="text-xl font-semibold mb-4 text-center">Active Vehicles</h2>
+      <h2 class="text-xl font-semibold mb-4 text-center">📋 Active Vehicles</h2>
       <table class="w-full border-collapse">
         <thead>
           <tr class="bg-blue-500 text-white">
@@ -65,41 +76,61 @@
             occ: null,
             rev: null,
             type: null
-          }
+          },
+          statusMessage: '',
+          statusClass: ''
         };
-      },
-      mounted() {
-        this.loadDashboard();
-        setInterval(() => this.loadDashboard(), 10000);
       },
       methods: {
         async fetchJSON(path) {
-          const res = await fetch(API_BASE + path);
-          return res.ok ? res.json() : {};
+   const res = await fetch(API_BASE + path);
+    return res.ok ? res.json() : {};
         },
         async loadDashboard() {
-          const free = await this.fetchJSON('/spaces/free');
-          const occ = await this.fetchJSON('/occupancy');
-          const occupied = occ.capacity - free.free_spaces;
-          this.renderOccupancy(occupied, free.free_spaces);
+    const free = await this.fetchJSON('/spaces/free');
+    const occ = await this.fetchJSON('/occupancy');
+    const occupied = occ.capacity - free.free_spaces;
+    this.renderOccupancy(occupied, free.free_spaces, occ.capacity);
 
-          const vehicles = await this.fetchJSON('/vehicles/active');
-          this.vehicles = vehicles;
-          this.renderType(vehicles);
+    const vehicles = await this.fetchJSON('/vehicles/active');
+    this.vehicles = vehicles;
+    this.renderType(vehicles);
 
-          const rev = await this.fetchJSON('/revenue/today');
-          this.renderRevenue(rev.total_revenue || 0);
-        },
-        renderOccupancy(occupied, free) {
-          if (this.charts.occ) this.charts.occ.destroy();
-          this.charts.occ = new Chart(this.$refs.occCanvas, {
-            type: 'doughnut',
-            data: {
-              labels: ['Occupied', 'Free'],
-              datasets: [{ data: [occupied, free], backgroundColor: ['#f44336', '#4caf50'] }]
-            }
-          });
-        },
+    const rev = await this.fetchJSON('/revenue/today');
+    this.renderRevenue(rev.total_revenue || 0);
+  },
+        async triggerSimulation() {
+    this.statusMessage = '';
+    try {
+      const res = await fetch(API_BASE + '/simulate', { method: 'POST' });
+      const data = await res.json();
+      if (data.error) {
+        this.statusMessage = '❌ ' + data.error;
+        this.statusClass = 'text-red-600';
+      } else {
+        this.statusMessage = '✅ Simulacija uspešno pokrenuta!';
+        this.statusClass = 'text-green-600';
+        this.loadDashboard();
+      }
+    } catch (err) {
+      this.statusMessage = '❌ Greška u komunikaciji sa serverom.';
+      this.statusClass = 'text-red-600';
+    }
+  },
+        renderOccupancy(occupied, free, capacity) {
+    if (occupied >= capacity) {
+      this.statusMessage = '⚠️ Parking je pun. Nema slobodnih mesta.';
+      this.statusClass = 'text-red-600';
+    }
+    if (this.charts.occ) this.charts.occ.destroy();
+    this.charts.occ = new Chart(this.$refs.occCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Occupied', 'Free'],
+        datasets: [{ data: [occupied, free], backgroundColor: ['#f44336', '#4caf50'] }]
+      }
+    });
+  },
         renderRevenue(amount) {
           if (this.charts.rev) this.charts.rev.destroy();
           this.charts.rev = new Chart(this.$refs.revCanvas, {
