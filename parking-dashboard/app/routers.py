@@ -3,7 +3,7 @@ from fastapi_cache.decorator import cache
 from datetime import datetime
 from app.VehicleType import VehicleType
 from pydantic import BaseModel
-from simulate_apict import run_simulation
+from app.simulate_apict import run_simulation
 import random
 
 from app.services import service
