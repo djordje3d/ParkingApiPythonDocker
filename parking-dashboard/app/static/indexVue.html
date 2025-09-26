@@ -81,6 +81,9 @@
           statusClass: ''
         };
       },
+      mounted() {
+        this.loadDashboard();
+      },
       methods: {
         async fetchJSON(path) {
    const res = await fetch(API_BASE + path);
