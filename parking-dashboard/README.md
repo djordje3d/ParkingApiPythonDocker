@@ -15,7 +15,8 @@ parking-dashboard/
 │   ├── services.py          # Business logic and cache
 │   ├── VehicleType.py       # Enum for vehicle types
 │   └── static/              # HTML dashboard with charts
-├── simulate_apict.py        # Simulation script
+|   |__ simulate_apict.py    # Simulation script
+|
 └── README.md                # This file
 ```
 
@@ -53,6 +54,9 @@ Open in your browser:
 
 ```
 http://127.0.0.1:8000/static/index.html
+http://127.0.0.1:8000/static/indexVue.html
+http://127.0.0.1:8000/static/dashboard.html
+
 ```
 
 ### Features
@@ -81,7 +85,7 @@ http://127.0.0.1:8000/static/index.html
 
 - All data is **in-memory** and resets on server restart  
 - Simulation generates **random Serbian-style license plates**  
-- Dashboard **auto-refreshes every 10 seconds** for live feedback  
+- Dashboard **Refresh after click on button** for live feedback  
 
 ---
 
