@@ -113,7 +113,7 @@ def run_simulation():
         res = requests.get(f"{BASE_URL}/health", timeout=5)
         print("✅ Server response:", res.json())
     except Exception as e:
-        print("❌ Server unreachable:", e)
+        print("❌ Server     unreachable:", e)
         return
 
     print("➡️ Calling show_occupancy()")

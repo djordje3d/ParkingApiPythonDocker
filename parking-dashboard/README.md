@@ -5,26 +5,49 @@ It’s designed for **demo purposes and client presentations**.
 
 ---
 
-## 📦 Project Structure
+## 🧭 Project Overview
 
-```
-parking-dashboard/
-├── app/
-│   ├── main.py              # FastAPI entry point
-│   ├── routers.py           # API route definitions
-│   ├── services.py          # Business logic and cache
-│   ├── VehicleType.py       # Enum for vehicle types
-│   └── static/              # HTML dashboard with charts
-|   |__ simulate_apict.py    # Simulation script
-|
-└── README.md                # This file
-```
+Commissioned by a client managing private parking facilities, this app digitizes manual vehicle tracking and revenue calculation.  
+It provides:
+
+- Real-time occupancy monitoring  
+- Vehicle entry/exit logging  
+- Daily revenue analytics  
+- A visual dashboard for operators  
+- A simulation module for testing and demonstration
 
 ---
 
-## 🚀 How to Run the Demo
+## 📦 Project Structure
 
-### 1. Start the backend server
+```
+parking-dashboard/ 
+├── app/ 
+│ ├── main.py               # FastAPI entry point 
+│ ├── routers.py            # API route definitions 
+│ ├── services.py           # Business logic and cache 
+│ ├── ParkingService.py     # Core parking logic 
+│ ├── Ticket.py             # Ticket model and barcode logic 
+│ ├── VehicleType.py        # Enum for vehicle types 
+│ ├── static/               # HTML dashboard with charts 
+│ │ ├── index.html 
+│ │ ├── indexVue.html 
+│ │ └── dashboard.html 
+│ └── simulate_apict.py     # Simulation script 
+├── requirements.txt        # Python dependencies 
+├── Dockerfile              # Container configuration 
+└── README.md               # This file
+---
+```
+## 🚀 How to Run the Demo Locally
+```
+```
+### 1. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+### 2. Start the backend server
 
 ```bash
 uvicorn app.main:app --reload
@@ -36,10 +59,10 @@ uvicorn app.main:app --reload
 
 ---
 
-### 2. Run the simulation script
+### 3. Run the simulation script
 
 ```bash
-python simulate_apict.py
+python app/simulate_apict.py
 ```
 
 - Simulates **vehicle entries and exits** with randomized data  
@@ -64,12 +87,12 @@ http://127.0.0.1:8000/static/dashboard.html
 - 📊 **Bar chart** – daily revenue  
 - 🚘 **Bar chart** – vehicle type distribution  
 - 📋 **Live table** – active parked vehicles (auto-refresh every 10s)  
-
+- 🔄 **Simulation trigger** – via dashboard button
 ---
 
 ## 🔌 API Endpoints Overview
 
-| Method | Endpoint                 | Description                               |
+| Method | Endpoint                  | Description                               |
 |--------|---------------------------|-------------------------------------------|
 | POST   | `/vehicles/enter`        | Register vehicle entry, returns barcode    |
 | POST   | `/vehicles/exit/{barcode}` | Process exit, calculate duration & revenue |
@@ -78,6 +101,7 @@ http://127.0.0.1:8000/static/dashboard.html
 | GET    | `/vehicles/active`       | List all currently parked vehicles         |
 | GET    | `/revenue/today`         | Return total revenue for the current day   |
 | GET    | `/health`                | Check service status                       |
+| POST   | `/simulate`              | Trigger simulation from frontend           |
 
 ---
 
@@ -86,6 +110,7 @@ http://127.0.0.1:8000/static/dashboard.html
 - All data is **in-memory** and resets on server restart  
 - Simulation generates **random Serbian-style license plates**  
 - Dashboard **Refresh after click on button** for live feedback  
+- No database required — ideal for demos and testing
 
 ---
 
