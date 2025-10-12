@@ -4,6 +4,7 @@ from pathlib import Path
 
 from app.routers import router
 from app.services import init_cache
+from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 
@@ -27,3 +28,11 @@ else:
 def on_startup():
     print("🚀 Startup event triggered")
     init_cache(app)
+
+
+@app.get("/", response_class=HTMLResponse)
+def serve_index():
+    index_file = static_path / "index.html"
+    if index_file.exists():
+        return index_file.read_text()
+    return "<h1>Index file not found</h1>"
