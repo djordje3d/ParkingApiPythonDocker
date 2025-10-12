@@ -52,7 +52,7 @@
   </style>
 </head>
 <body>
-  <h1 style="text-align:center; font-size:32px; font-weight:700;">Garage Dashboard</h1>
+  <h1 style="text-align:center; font-size:32px; font-weight:700;">Garage Dashboard - VUE</h1>
 
   <button onclick="runSimulation()">🔄 Simulate Entry/Exit</button>
   <div id="statusMessage"></div>
@@ -64,20 +64,35 @@
   <div id="revenueDisplay">Loading...</div>
 
   <script>
+      let isRunning = false; // 🚫 Prevent multiple simultaneous runs
+
     async function runSimulation() {
-      document.getElementById("statusMessage").textContent = "⏳ Pokrećem simulaciju...";
-      try {
+      if (isRunning) return; // If already running, do nothing
+      isRunning = true;
+
+      const button = document.querySelector("button");
+      button.disabled = true;
+      button.textContent = "⏳ Simulacija u toku...";
+
+      const statusEl = document.getElementById("statusMessage");
+      statusEl.textContent = "⏳ Pokrećem simulaciju...";
+
+    try {
         const res = await fetch("/simulate", { method: "POST" });
         const data = await res.json();
 
         if (data.error) {
-          document.getElementById("statusMessage").textContent = "❌ " + data.error;
+          statusEl.textContent = "❌ " + data.error; 
         } else {
-          document.getElementById("statusMessage").textContent = "✅ Simulacija uspešno završena!";
+          statusEl.textContent = "✅ Simulacija uspešno završena!";
           await refreshDashboard();
         }
       } catch (err) {
-        document.getElementById("statusMessage").textContent = "❌ Greška u komunikaciji sa serverom.";
+        statusEl.textContent = "❌ Greška u komunikaciji sa serverom.";
+      }finally {
+        button.disabled = false;
+        button.textContent = "🔄 Simulate Entry/Exit";
+        isRunning = false;
       }
     }
 
@@ -89,28 +104,35 @@
         const freeData = await freeRes.json();
 
         const occupied = occData.capacity - freeData.free_spaces;
+
         const ctx = document.getElementById("occupancyChart").getContext("2d");
-        new Chart(ctx, {
-          type: "doughnut",
-          data: {
-            labels: ["Occupied", "Free"],
-            datasets: [{
-              data: [occupied, freeData.free_spaces],
-              backgroundColor: ["#f44336", "#4caf50"]
-            }]
-          },
-          options: { responsive: true }
-        });
+
+        if (window.occupancyChartInstance && typeof window.occupancyChartInstance.destroy === "function") {
+            window.occupancyChartInstance.destroy();
+            }
+
+            window.occupancyChartInstance = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                labels: ["Occupied", "Free"],
+                datasets: [{
+                data: [occupied, freeData.free_spaces],
+                backgroundColor: ["#f44336", "#4caf50"]
+          }]
+      },
+                options: { responsive: true }
+  });
 
         const revRes = await fetch("/revenue/today");
         const revData = await revRes.json();
         document.getElementById("revenueDisplay").textContent = `Total: ${revData.total_revenue} RSD`;
       } catch (err) {
         document.getElementById("revenueDisplay").textContent = "❌ Greška u učitavanju podataka.";
+              console.error("Error refreshing dashboard:", err);
       }
     }
 
-    refreshDashboard();
+window.addEventListener("load", refreshDashboard); 
   </script>
 </body>
 </html>

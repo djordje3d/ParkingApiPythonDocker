@@ -1,13 +1,16 @@
 FROM python:3.11-slim
+# Koristi zvaničnu Python 3.11 slim sliku kao osnovu
+# slim verzija je manja (bez nepotrebnih paketa) i efikasnija za deployment
 
 # Postavi radni direktorijum u /app
 WORKDIR /app
 
-# Kopiraj requirements.txt iz parking-dashboard
+# Kopiraj requirements.txt iz lokalnog foldera parking-dashboard
 COPY parking-dashboard/requirements.txt .
 
 # Instaliraj zavisnosti
 RUN pip install --no-cache-dir -r requirements.txt
+# --no-cache-dir opcija sprečava keširanje preuzetih paketa, čime se smanjuje veličina image-a
 
 # Kopiraj ceo app folder u /app u kontejneru
 # COPY parking-dashboard/app/ ./ 

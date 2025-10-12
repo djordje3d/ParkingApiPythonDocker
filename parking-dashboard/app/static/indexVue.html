@@ -91,16 +91,21 @@
     return res.ok ? res.json() : {};
         },
         async loadDashboard() {
+
     const free = await this.fetchJSON('/spaces/free');
     const occ = await this.fetchJSON('/occupancy');
     const occupied = occ.capacity - free.free_spaces;
-    this.renderOccupancy(occupied, free.free_spaces, occ.capacity);
 
     const vehicles = await this.fetchJSON('/vehicles/active');
     this.vehicles = vehicles;
-    this.renderType(vehicles);
 
     const rev = await this.fetchJSON('/revenue/today');
+
+  // 💡 Sačekaj da DOM sigurno renderuje canvas elemente
+  await this.$nextTick();
+  
+    this.renderOccupancy(occupied, free.free_spaces, occ.capacity);
+    this.renderType(vehicles);
     this.renderRevenue(rev.total_revenue || 0);
   },
         async triggerSimulation() {

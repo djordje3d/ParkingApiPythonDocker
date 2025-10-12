@@ -1,0 +1,17 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtualne okoline
+venv/
+.env/
+*.env
+
+# Git fajlovi
+.git/
+.gitignore
+
+# Node modules (ako imaš frontend)
+
+# Docker fajlovi koje ne želiš da se kopiraju
+
