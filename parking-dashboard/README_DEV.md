@@ -1,3 +1,7 @@
+# 🚗 Parking Service API
+
+A modular FastAPI-based system for simulating and managing smart parking operations — complete with a dashboard, API, and simulation tools.
+
 # 📄 License & Credits
 This demo was developed by **Djordje Bogdanovic** for client presentation and educational purposes. 
 Feel free to adapt or extend for production use.
@@ -25,23 +29,24 @@ It covers architecture, setup, simulation, deployment, and extensibility.
 
 ## 📦 Folder Structure
 
-parking-dashboard/ 
-├── app/ 
-│ ├── main.py               # FastAPI entry point 
-│ ├── routers.py            # API route definitions 
-│ ├── services.py           # Business logic and cache 
-│ ├── ParkingService.py     # Core parking logic 
-│ ├── Ticket.py             # Ticket model and barcode logic 
-│ ├── VehicleType.py        # Enum for vehicle types 
-│ ├── static/               # HTML dashboard with charts 
-│ │ ├── index.html 
-│ │ ├── indexVue.html 
-│ │ └── dashboard.html 
-│ └── simulate_apict.py     # Simulation script 
-├── requirements.txt        # Python dependencies 
-├── Dockerfile              # Container configuration 
-└── README.md           
-|── README_DEV.md           # This file
+parking-dashboard/
+├── app/
+│   ├── main.py               # FastAPI entry point 
+│   ├── routers.py            # API route definitions 
+│   ├── services.py           # Business logic and cache 
+│   ├── ParkingService.py     # Core parking logic 
+│   ├── Ticket.py             # Ticket model and barcode logic 
+│   ├── VehicleType.py        # Enum for vehicle types 
+│   ├── static/               # HTML dashboard with charts 
+│   │   ├── index.html 
+│   │   ├── indexVue.html 
+│   │   └── dashboard.html 
+│   └── simulate_apict.py     # Simulation script 
+├── requirements.txt          # Python dependencies 
+├── Dockerfile                # Container configuration 
+├── README.md                 
+└── README_DEV.md             # This file
+
 ---
 
 
