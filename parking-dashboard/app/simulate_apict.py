@@ -10,9 +10,11 @@ from app.VehicleType import VehicleType
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
-BASE_URL = "http://127.0.0.1:8000"
+#  BASE_URL = "http://127.0.0.1:8000"
 # BASE_URL = "http://localhost:8000" # for request from the same container
 # BASE_URL = "http://render.internal:8000"  # for request from another container
+# Dinamički BASE_URL — lokalno ili produkcija
+BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
 
 # Prefixes and suffixes for registration numbers
 prefixes = ["BG", "NS", "NI", "CA", "KG", "SU", "ZR", "VA"]
