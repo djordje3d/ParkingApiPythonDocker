@@ -12,7 +12,7 @@ class ParkingFullError(Exception):
 
 
 class ParkingService:
-    def __init__(self, capacity=50, hourly_rate=120.0):
+    def __init__(self, capacity: int = 50, hourly_rate: float = 120.0):
         self.capacity = capacity
         self.hourly_rate = hourly_rate
         self.tickets: list[Ticket] = []
@@ -82,7 +82,7 @@ class ParkingService:
             )
         print("-" * 80)
 
-    def show_occupancy_bar(self, bar_length=50):
+    def show_occupancy_bar(self, bar_length: int = 50):
         occupied = len(self.tickets)
         filled_blocks = math.floor((occupied / self.capacity) * bar_length)
         empty_blocks = bar_length - filled_blocks

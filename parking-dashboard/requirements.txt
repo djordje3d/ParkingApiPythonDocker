@@ -1,5 +1,5 @@
-fastapi
-uvicorn[standard]
-fastapi-cache2
-requests
-aiofiles
+fastapi  # Web framework for building APIs
+uvicorn[standard]  # ASGI server for serving FastAPI applications
+fastapi-cache2  # Caching support for FastAPI
+requests  # HTTP library for making requests
+aiofiles  # Support for asynchronous file operations

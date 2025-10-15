@@ -5,7 +5,8 @@ from app.VehicleType import VehicleType
 from pydantic import BaseModel
 from app.simulate_apict import run_simulation
 from app.ParkingService import ParkingFullError
-import random
+
+# from app.routers import healthcheck
 
 from app.services import service
 
@@ -93,3 +94,8 @@ def get_revenue_today():
 @router.get("/health")
 def healthcheck():
     return {"status": "ok", "timestamp": datetime.now().isoformat(), "version": "1.0.0"}
+
+
+def check_health_direct():
+    result = healthcheck()
+    print("✅ Internal health:", result)

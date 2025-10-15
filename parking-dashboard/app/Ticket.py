@@ -16,7 +16,7 @@ class Ticket:
 
     def generate_bar_code(
         self,
-    ) -> str:  # Generate a unique barcode based on ticket details
+    ) -> str:  # Generate a unique barcode based on ticket details as string
         bar_code = (
             str(self.id)
             + self.vehicle_registration
