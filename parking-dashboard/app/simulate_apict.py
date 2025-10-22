@@ -133,3 +133,7 @@ def run_simulation():
     show_vehicles()
 
     print("*" * 60)
+
+
+if __name__ == "__main__":
+    run_simulation()

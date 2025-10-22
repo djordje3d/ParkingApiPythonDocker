@@ -228,7 +228,7 @@ button:hover {
 
         function renderRevenueChart(amount) {
             if (revenueChart && typeof revenueChart.destroy === "function") {
-                revenueChart.destroy();
+                revenueChart.destroy();  // uništavamo prethodni grafikon ako postoji
             }
             revenueChart = new Chart(
                 document.getElementById('revenueChart'),
