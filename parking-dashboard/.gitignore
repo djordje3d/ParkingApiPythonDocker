@@ -1,3 +1,33 @@
+# Python
 .venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*.sqlite3
+*.log
+*.env
+*.db
+*.pkl
+*.egg-info/
+*.coverage
+*.cache/
+dist/
+build/
+
+# FastAPI / Uvicorn
+*.pid
+
+# Node / Vue frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env
+frontend/.env.local
+frontend/.DS_Store
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db

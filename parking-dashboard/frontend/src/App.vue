@@ -63,7 +63,8 @@
 import { ref, onMounted, nextTick } from 'vue'
 
 // 🎯 API base
-const API_BASE = ''
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+
 
 // 📦 Reactive state
 const vehicles = ref([])
@@ -77,10 +78,22 @@ const revCanvas = ref(null)
 const typeCanvas = ref(null)
 
 // 🌐 Fetch helper
+// async function fetchJSON(path) {
+//   const res = await fetch(API_BASE + '/api' + path)
+//   return res.ok ? res.json() : {}
+// }
+
 async function fetchJSON(path) {
-  const res = await fetch(API_BASE + path)
-  return res.ok ? res.json() : {}
+  try {
+    const res = await fetch(API_BASE + '/api' + path)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return await res.json()
+  } catch (err) {
+    console.error(`❌ Failed to fetch ${path}:`, err)
+    return {}
+  }
 }
+
 
 // 📊 Load dashboard
 async function loadDashboard() {
@@ -103,7 +116,7 @@ async function loadDashboard() {
 async function triggerSimulation() {
   statusMessage.value = ''
   try {
-    const res = await fetch(API_BASE + '/simulate', { method: 'POST' })
+    const res = await fetch(API_BASE + '/api/simulate', { method: 'POST' })
     const data = await res.json()
 
     if (data.error) {

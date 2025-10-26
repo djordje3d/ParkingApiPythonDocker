@@ -1,15 +1,37 @@
 # Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+*.log
+*.db
+*.pkl
+*.sqlite3
+*.egg-info/
+*.coverage
+*.cache/
 
-# Virtualne okoline
+# Virtual environments
+.venv/
 venv/
-.env/
-*.env
+.env
+.env.local
 
+# Node / Vue frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env
+frontend/.env.local
+
+# Git and editor
 # Git fajlovi
 .git/
 .gitignore
+.vscode/
+*.code-workspace
+
+# OS junk
+.DS_Store
+Thumbs.db
 
 # Node modules (ako imaš frontend)
 

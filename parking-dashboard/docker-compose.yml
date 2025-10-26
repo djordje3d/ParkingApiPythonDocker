@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  backend:  # Start FastAPI backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parking-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app
+    environment:
+      - PORT=8000
+    restart: unless-stopped
+
+  frontend:  # Startuje Vue/nginx kontejner koji servira index.html
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: parking-frontend
+    ports:
+      - "3000:80"     # frontend se vidi na http://localhost:3000 , backend na http://localhost:8000
+    depends_on:  # Osigurava da se backend digne pre frontend-a
+      - backend
+    restart: unless-stopped
+    environment:
+      - VITE_API_BASE=http://backend:8000  # Postavi API_BASE na adresu backend servisa unutar Docker mreže
+      # Ova promenljiva će biti korišćena u frontend aplikaciji za komunikaciju sa backend-om
+
+networks:  # Definiše mreže za kontejnere
+  default:
+    driver: bridge  # Koristi bridge mrežu za komunikaciju između servisa

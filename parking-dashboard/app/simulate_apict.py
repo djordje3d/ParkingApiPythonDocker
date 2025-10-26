@@ -27,21 +27,29 @@ def generate_registration() -> str:
 
 def show_occupancy():
     print("📡 Fetching occupancy data...")
-    # occ = requests.get(f"{BASE_URL}/occupancy").json()
-    # free = requests.get(f"{BASE_URL}/spaces/free").json()
-    occ = requests.get(f"{BASE_URL}/occupancy", timeout=5).json()
-    free = requests.get(f"{BASE_URL}/spaces/free", timeout=5).json()
 
-    occupied = occ["capacity"] - free["free_spaces"]
-    print(f"\n📊 Occupancy: {occupied}/{occ['capacity']} ({occ['percent']:.1f}%)")
-    print(f"🅿️ FREE parking spaces: {free['free_spaces']}")
+    occ_response = requests.get(f"{BASE_URL}/api/occupancy", timeout=5)
+    free_response = requests.get(f"{BASE_URL}/api/spaces/free", timeout=5)
+
+    occ = safe_json(occ_response)
+    free = safe_json(free_response)
+
+    if occ and free:
+        occupied = occ["capacity"] - free["free_spaces"]
+        print(f"\n📊 Occupancy: {occupied}/{occ['capacity']} ({occ['percent']:.1f}%)")
+        print(f"🅿️ FREE parking spaces: {free['free_spaces']}")
+    else:
+        print("❌ Failed to fetch occupancy data.")
 
 
 def show_vehicles():
-    vehicles = requests.get(f"{BASE_URL}/vehicles/active").json()
+    response = requests.get(f"{BASE_URL}/api/vehicles/active", timeout=5)
+    vehicles = safe_json(response)
+
     if not vehicles:
-        print("🅿 Parking is empty.")
+        print("🅿 Parking is empty or data unavailable.")
         return
+
     print(f"\n📋 Parked Vehicles: {len(vehicles)}")
     print("-" * 70)
     for v in vehicles:
@@ -60,18 +68,33 @@ def simulate_entry():
     for _ in range(vehicle_count):
         registration = generate_registration()
         vehicle_type = random.choice(list(VehicleType))
-        res = requests.post(
-            f"{BASE_URL}/vehicles/enter",
+
+        response = requests.post(
+            f"{BASE_URL}/api/vehicles/enter",
             json={"registration": registration, "vehicle_type": vehicle_type},
-        ).json()
-        if "barcode" in res:
+        )
+
+        res = safe_json(response)
+        if res and "barcode" in res:
             barcodes.append(res["barcode"])
             print(
                 f"✅ Entered {registration} ({vehicle_type}) → Barcode: {res['barcode']}"
             )
         else:
-            print("❌ Entry failed:", res)
+            print("❌ Entry failed:", res if res else response.text)
+
     return barcodes
+
+
+def safe_json(response):
+    if response.status_code == 200 and response.content:
+        try:
+            return response.json()
+        except Exception as e:
+            print("❌ JSON parsing error:", e)
+    else:
+        print("❌ Invalid response:", response.status_code, response.text)
+    return None
 
 
 # barcodes iz simulate_entry se prosledjuju kao argument
@@ -94,7 +117,9 @@ def simulate_entry():
 
 
 def simulate_exit():
-    vehicles = requests.get(f"{BASE_URL}/vehicles/active", timeout=5).json()
+    response = requests.get(f"{BASE_URL}/api/vehicles/active", timeout=5)
+    vehicles = safe_json(response)
+
     if not vehicles:
         print("\n⚠️ No vehicles to exit.")
         return
@@ -102,9 +127,13 @@ def simulate_exit():
     barcodes = [v["barcode"] for v in vehicles]
     number_to_exit = random.randint(1, min(6, len(barcodes)))
     print(f"\n🚗 Exiting {number_to_exit} vehicles...")
+
     for barcode in random.sample(barcodes, number_to_exit):
-        res = requests.post(f"{BASE_URL}/vehicles/exit/{barcode}").json()
-        print("🚗 Exit response:", res)
+        res = safe_json(requests.post(f"{BASE_URL}/api/vehicles/exit/{barcode}"))
+        if res:
+            print("🚗 Exit response:", res)
+        else:
+            print(f"❌ Exit failed for barcode {barcode}")
 
 
 def run_simulation():
@@ -113,8 +142,11 @@ def run_simulation():
 
     print("🔍 Checking server health...")
     try:
-        res = requests.get(f"{BASE_URL}/health", timeout=5)
-        print("✅ Server response:", res.json())
+        res = requests.get(f"{BASE_URL}/api/health", timeout=5)
+        if res.status_code == 200 and res.content:
+            print("✅ Server response:", res.json())
+        else:
+            print("❌ Invalid server response:", res.status_code, res.content)
     except Exception as e:
         print("❌ Server     unreachable:", e)
         return

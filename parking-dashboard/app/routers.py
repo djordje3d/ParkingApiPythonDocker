@@ -10,7 +10,8 @@ from app.ParkingService import ParkingFullError
 
 from app.services import service
 
-router = APIRouter()
+# router = APIRouter()
+router = APIRouter(prefix="/api")
 
 
 class VehicleEntry(BaseModel):
